@@ -34,7 +34,7 @@ void test() {
 Compile and statically link with the provided source `wasm_printf.c`.
 
 ```Bash
-wasi-sdk/bin/clang --sysroot=wasi-sdk/share/wasi-sysroot -nostartfiles -nostdlib -Wl,--export-dynamic -Wl,--no-entry -Wl,--allow-undefined example.c wasm_printf.c -O3 -o example.wasm
+wasi-sdk/bin/clang --sysroot=wasi-sdk/share/wasi-sysroot -nostartfiles -nostdlib -Wl,--export-all -Wl,--no-entry -Wl,--allow-undefined example.c wasm_printf.c -O3 -o example.wasm
 ```
 
 Alternatively, you can statically link with the provided `printf.a.wasm` module if your toolchain understands the `linking` and `reloc` custom sections.

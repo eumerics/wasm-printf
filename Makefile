@@ -15,4 +15,4 @@ dist/printf.dyn.wasm: src/printf.c
 test: all
 	cd test; make
 clean:
-	rm ${TARGETS}; cd test; make clean
+	rm -f ${TARGETS}; cd test; make clean; cd ../example; make clean;

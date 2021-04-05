@@ -10,4 +10,4 @@ all: ../build/test_static.wasm ../build/test_dynamic.wasm ../build/test_stdio ..
 ../build/test_relay: test.h ../src/printf.c relay.c
 	clang relay.c -O3 -o ../build/test_relay
 clean:
-	rm ../build/test_*
+	rm -f ../build/test_*
