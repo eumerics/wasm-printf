@@ -1,0 +1,10 @@
+{
+   "name": "wasm-printf",
+   "version": "0.1.0",
+   "description": "A lightweight standalone implementation of C printf function for WebAssembly modules",
+   "author": "Eumerics Inc.",
+   "license": "MIT",
+   "devDependencies": {
+      "terser": "^5.6.1"
+   }
+}
