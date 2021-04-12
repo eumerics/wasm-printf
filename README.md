@@ -1,6 +1,6 @@
 # wasm-printf
 
-A lightweight standalone implementation of __C printf__ function for WebAssembly modules. It adds about __3KB__ to the WebAssembly binary and about __4KB__ to the JavaScript code. It requires a JavaScript run time environment such as node.js or a browser.
+A lightweight, standalone implementation of __C printf__ function for WebAssembly modules. It adds about __3KB__ to the WebAssembly binary and about __4KB__ to the JavaScript code. It requires a JavaScript run time environment such as node.js or a browser.
 
 ### Features
 
@@ -15,19 +15,29 @@ Implements the complete `printf` specification as per C11 standard with the exce
     - character: `%c`, `%s`
     - other: `%p`, `%n`
 
+#### Extensions
+ - Win32/Win64 length modifiers: `I`, `I32`, `I64`
+ - UTF-16 char16_t specifiers: `%Ls`
+
 ### Usage
 
-Usage is very straightforward. Start with a declaration of `printf` function signature and call it as you would normally in your code.
+Usage is very straightforward. Start with a declaration of `printf` function and call it as you would normally in your code.
 
 ```C
 // example.c
+#include <stdint.h>
+#include <stddef.h>
 int printf(char const*, ...);
 void test() {
+   // NOTE: output won't appear until a newline is encountered
    printf("%d %u %f %e %g\n", -1, 2, 3., 0.4, 5e-2); // conversions
    printf("%c %s %p %o %x\n", '6', "78", (void *)(0), 89, 90); // conversions
    printf("%4.3d %4.3f\n", 12, 3.4); // field width and precision
    printf("%-4d %+d % d %#f %03d\n", 56, 7, 8, 9., 12); // flags
    printf("%ld %lld\n", 12L, -45LL); // length modifiers
+   printf("%Id %Iu %I32o %I64x\n", (ptrdiff_t)(12), (size_t)(34), (int32_t)(567), (uint64_t)(890)); // Win32/Win64 length modifiers
+   char16_t unicode_string[] = {0x61, 0xc0, 0x1f00, 0xd835, 0xdec3, 0x0};
+   printf("%Ls\n", unicode_string);
 }
 ```
 

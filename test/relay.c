@@ -4,7 +4,7 @@
 #define PRINTF_RELAY
 #define WASM_EXPORT
 char format_string[32]; // we will use a global since this file is for testing only
-void set_format(int flags, int width, int precision, char length_char, char type)
+void set_format(int flags, int width, int precision, char length_char, uint8_t length, char type)
 {
    int index = 0;
    int const flag_left_align = 0x01;
@@ -27,6 +27,15 @@ void set_format(int flags, int width, int precision, char length_char, char type
    } else if(length_char == 2) {
       format_string[index++] = 'h';
       format_string[index++] = 'h';
+   } else if(length_char == 'I') {
+      format_string[index++] = 'I';
+      if(length == 4) {
+         format_string[index++] = '3';
+         format_string[index++] = '2';
+      } else {
+         format_string[index++] = '6';
+         format_string[index++] = '4';
+      }
    } else if(length_char != 0) {
       format_string[index++] = length_char;
    }
@@ -39,87 +48,109 @@ int printf_string(char const* begin, char const* end)
 }
 int printf_integer(int flags, int width, int precision, char length_char, uint8_t length, char type, int value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
+}
+int printf_int32(int flags, int width, int precision, char length_char, uint8_t length, char type, int32_t value)
+{
+   //set_format(flags, width, precision, length_char, length, type);
+   //return printf(format_string, value);
+   return 0;
+}
+int printf_int64(int flags, int width, int precision, char length_char, uint8_t length, char type, int64_t value)
+{
+   //set_format(flags, width, precision, length_char, length, type);
+   //return printf(format_string, value);
+   return 0;
 }
 int printf_long(int flags, int width, int precision, char length_char, uint8_t length, char type, long value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_long_long(int flags, int width, int precision, char length_char, uint8_t length, char type, long long value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_intmax(int flags, int width, int precision, char length_char, uint8_t length, char type, intmax_t value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_signed_size(int flags, int width, int precision, char length_char, uint8_t length, char type, size_t value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_ptrdiff(int flags, int width, int precision, char length_char, uint8_t length, char type, ptrdiff_t value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_unsigned(int flags, int width, int precision, char length_char, uint8_t length, char type, unsigned value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
+   return printf(format_string, value);
+}
+int printf_uint32(int flags, int width, int precision, char length_char, uint8_t length, char type, uint32_t value)
+{
+   set_format(flags, width, precision, length_char, length, type);
+   return printf(format_string, value);
+}
+int printf_uint64(int flags, int width, int precision, char length_char, uint8_t length, char type, uint64_t value)
+{
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_unsigned_long(int flags, int width, int precision, char length_char, uint8_t length, char type, unsigned long value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_unsigned_long_long(int flags, int width, int precision, char length_char, uint8_t length, char type, unsigned long long value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_uintmax(int flags, int width, int precision, char length_char, uint8_t length, char type, uintmax_t value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_size(int flags, int width, int precision, char length_char, uint8_t length, char type, size_t value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_unsigned_ptrdiff(int flags, int width, int precision, char length_char, uint8_t length, char type, ptrdiff_t value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_double(int flags, int width, int precision, char length_char, uint8_t length, char type, double value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_long_double(int flags, int width, int precision, char length_char, uint8_t length, char type, long double value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_cstring(int flags, int width, int precision, char length_char, uint8_t length, char type, char const* value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_char(int flags, int width, int precision, char length_char, uint8_t length, char type, char value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 int printf_pointer(int flags, int width, int precision, char length_char, uint8_t length, char type, void* value)
 {
-   set_format(flags, width, precision, length_char, type);
+   set_format(flags, width, precision, length_char, length, type);
    return printf(format_string, value);
 }
 

@@ -8,12 +8,16 @@
 
 int printf_string(char const* begin, char const* end);
 int printf_integer(int flags, int width, int precision, char length_char, uint8_t length, char type, int value);
+int printf_int32(int flags, int width, int precision, char length_char, uint8_t length, char type, int32_t value);
+int printf_int64(int flags, int width, int precision, char length_char, uint8_t length, char type, int64_t value);
 int printf_long(int flags, int width, int precision, char length_char, uint8_t length, char type, long value);
 int printf_long_long(int flags, int width, int precision, char length_char, uint8_t length, char type, long long value);
 int printf_intmax(int flags, int width, int precision, char length_char, uint8_t length, char type, intmax_t value);
 int printf_signed_size(int flags, int width, int precision, char length_char, uint8_t length, char type, size_t value);
 int printf_ptrdiff(int flags, int width, int precision, char length_char, uint8_t length, char type, ptrdiff_t value);
 int printf_unsigned(int flags, int width, int precision, char length_char, uint8_t length, char type, unsigned value);
+int printf_uint32(int flags, int width, int precision, char length_char, uint8_t length, char type, uint32_t value);
+int printf_uint64(int flags, int width, int precision, char length_char, uint8_t length, char type, uint64_t value);
 int printf_unsigned_long(int flags, int width, int precision, char length_char, uint8_t length, char type, unsigned long value);
 int printf_unsigned_long_long(int flags, int width, int precision, char length_char, uint8_t length, char type, unsigned long long value);
 int printf_uintmax(int flags, int width, int precision, char length_char, uint8_t length, char type, uintmax_t value);
@@ -47,6 +51,7 @@ WASM_EXPORT int printf(char const* format, ...)
       int width = -1;
       int precision = -1;
       char length_char = 0;
+      int length_bytes = 0;
       if(c != '%') {
          char const* begin = p;
          while(c != '%' && c != 0) c = *++p;
@@ -113,6 +118,16 @@ WASM_EXPORT int printf(char const* format, ...)
          } else if(c == 'h') {
             length_char = 2; c = *++p; // we will use a pseudo char 2
          }
+      } else if(c == 'I') {
+         int length_bits = 0;
+         length_char = c; c = *++p;
+         if(c >= '1' && c <= '9'){
+            length_bits = c - '0'; c = *++p;
+            if(c < '0' || c > '9'){ errored = 1; break; }
+            length_bits = length_bits * 10 + (c - '0'); c = *++p;
+            if(length_bits != 32 && length_bits != 64){ errored = 1; break; }
+            length_bytes = length_bits / 8;
+         }
       }
       if(c == 0){ errored = 1; break; }
       // check for type field
@@ -145,6 +160,21 @@ WASM_EXPORT int printf(char const* format, ...)
                   ptrdiff_t value = va_arg(arg_pointer, ptrdiff_t);
                   print_length += printf_ptrdiff(flags, width, precision, length_char, sizeof(ptrdiff_t), c, value);
                   break;
+               }
+               case 'I': {
+                  if(length_bytes == 0) {
+                     ptrdiff_t value = va_arg(arg_pointer, ptrdiff_t);
+                     print_length += printf_ptrdiff(flags, width, precision, length_char, sizeof(ptrdiff_t), c, value);
+                     break;
+                  } else if(length_bytes == 4) {
+                     int32_t value = va_arg(arg_pointer, int32_t);
+                     print_length += printf_int32(flags, width, precision, length_char, length_bytes, c, value);
+                     break;
+                  } else {
+                     int64_t value = va_arg(arg_pointer, int64_t);
+                     print_length += printf_int64(flags, width, precision, length_char, length_bytes, c, value);
+                     break;
+                  }
                }
                default: {
                   int value = va_arg(arg_pointer, int);
@@ -185,6 +215,21 @@ WASM_EXPORT int printf(char const* format, ...)
                   print_length += printf_unsigned_ptrdiff(flags, width, precision, length_char, sizeof(ptrdiff_t), c, value);
                   break;
                }
+               case 'I': {
+                  if(length_bytes == 0) {
+                     size_t value = va_arg(arg_pointer, size_t);
+                     print_length += printf_size(flags, width, precision, length_char, sizeof(size_t), c, value);
+                     break;
+                  } else if(length_bytes == 4) {
+                     uint32_t value = va_arg(arg_pointer, uint32_t);
+                     print_length += printf_uint32(flags, width, precision, length_char, length_bytes, c, value);
+                     break;
+                  } else {
+                     uint64_t value = va_arg(arg_pointer, uint64_t);
+                     print_length += printf_uint64(flags, width, precision, length_char, length_bytes, c, value);
+                     break;
+                  }
+               }
                default: {
                   unsigned value = va_arg(arg_pointer, unsigned);
                   uint8_t length = (
@@ -219,7 +264,7 @@ WASM_EXPORT int printf(char const* format, ...)
          }
          case 's': {
             char* value = va_arg(arg_pointer, char*);
-            print_length += printf_cstring(flags, width, precision, length_char, sizeof(char*), c, value);
+            print_length += printf_cstring(flags, width, precision, length_char, (length_char == 'L' ? 2 : 1), c, value);
             break;
          }
          case 'c': {

@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <float.h>
+#include <uchar.h>
 #ifndef WASM_EXPORT
 #define WASM_EXPORT __attribute__ ((visibility ("default")))
 #endif
@@ -74,6 +75,14 @@ WASM_EXPORT void test() {
    counted_printf("", int, "%hd %hu %ho %hx\n", h, h, h, h);
    // inane specifiers
    counted_printf("", int, "%*d, %.d\n", -5, 1, 2);
+   // extensions
+   char16_t unicode_string[] = {0x61, 0xc0, 0x1f00, 0xd835, 0xdec3, 0x0};
+   counted_printf("", char16_t*, "%Ls\n", unicode_string);
+   counted_printf("", int,
+      "%Id, %Iu, %I32d, %I64d, %I32u, %I64u, %I32x, %I64x\n",
+      (ptrdiff_t)(123), (size_t)(456), (int32_t)(789), (int64_t)(123),
+      (uint32_t)(456), (uint64_t)(789), (uint32_t)(123), (uint64_t)(456)
+   );
    // unsupported
    counted_printf("", int, "%Lf, %A\n", 0.L, 0.);
 }

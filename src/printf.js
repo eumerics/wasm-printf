@@ -14,14 +14,17 @@
 let wasm_memory = undefined;
 let wasm_buffer = undefined;
 let uint8_view = undefined;
+let uint16_view = undefined;
 let printf_buffer = '';
 let utf8_decoder = new TextDecoder();
+let utf16_decoder = new TextDecoder('UTF-16');
 function printf_init(memory) {
    wasm_memory = memory;
 }
 function update_buffer_view() {
    if(!uint8_view || (wasm_memory.buffer !== wasm_buffer)) {
       uint8_view = new Uint8Array(wasm_memory.buffer);
+      uint16_view = new Uint16Array(wasm_memory.buffer);
    }
 }
 function handle_newline_and_update(string) {
@@ -104,6 +107,7 @@ let printf_env = {
          absolute = (absolute - remainder) / 10;
       } while(absolute);
       */
+      if(!ixx[length]) { console.log(ixx, length); printf_env.flush(); }
       number = (new ixx[length]([absolute]))[0].toString();
       let sign = (
          value < 0 ? '-' :
@@ -116,6 +120,12 @@ let printf_env = {
       if(precision >= 0) flags &= ~flag_zero_pad;
       let padding_length = width - number.length - sign.length;
       return add_padding_to_number(sign, number, padding_length, flags);
+   },
+   printf_int32: function(flags, width, precision, length_char, length, type, value) {
+      return printf_env.printf_integer(flags, width, precision, length_char, length, type, value);
+   },
+   printf_int64: function(flags, width, precision, length_char, length, type, value) {
+      return printf_env.printf_integer(flags, width, precision, length_char, length, type, value);
    },
    printf_long: function(flags, width, precision, length_char, length, type, value) {
       return printf_env.printf_integer(flags, width, precision, length_char, length, type, value);
@@ -149,6 +159,12 @@ let printf_env = {
       if(precision >= 0) flags &= ~flag_zero_pad;
       let padding_length = width - number.length - prefix.length;
       return add_padding_to_number(prefix, number, padding_length, flags);
+   },
+   printf_uint32: function(flags, width, precision, length_char, length, type, value) {
+      return printf_env.printf_unsigned(flags, width, precision, length_char, length, type, value);
+   },
+   printf_uint64: function(flags, width, precision, length_char, length, type, value) {
+      return printf_env.printf_unsigned(flags, width, precision, length_char, length, type, value);
    },
    printf_unsigned_long: function(flags, width, precision, length_char, length, type, value) {
       return printf_env.printf_unsigned(flags, width, precision, length_char, length, type, value);
@@ -278,14 +294,20 @@ let printf_env = {
    },
    printf_cstring: function(flags, width, precision, length_char, length, type, pointer) {
       update_buffer_view();
+      if(length == 2 && (pointer % 2) != 0) {
+         throw 'char16_t string is not aligned to 2 bytes';
+      }
+      pointer /= length;
       let si = pointer, string;
+      let view = (length == 1 ? uint8_view : uint16_view);
+      let decoder = (length == 1 ? utf8_decoder : utf16_decoder);
       if(precision >= 0) {
          //[TODO] test if precision is longer than zero terminated string length
-         string = utf8_decoder.decode(uint8_view.subarray(si, si + precision));
+         string = decoder.decode(view.subarray(si, si + precision));
       } else {
-         let max_si = uint8_view.byteLength;
-         while(uint8_view[si] != 0 && si < max_si) ++si;
-         string = utf8_decoder.decode(uint8_view.subarray(pointer, si));
+         let max_si = view.byteLength / length;
+         while(view[si] != 0 && si < max_si) ++si;
+         string = decoder.decode(view.subarray(pointer, si));
       }
       let padding_length = width - string.length;
       if(padding_length > 0) {
