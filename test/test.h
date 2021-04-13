@@ -78,7 +78,7 @@ WASM_EXPORT void test() {
    counted_printf("", int, "%*d, %.d\n", -5, 1, 2);
    // extensions
    char16_t unicode_string[] = {0x61, 0xc0, 0x1f00, 0xd835, 0xdec3, 0x0};
-   counted_printf("", char16_t*, "%Ls\n", unicode_string);
+   counted_printf("", char16_t*, "%Ls %Ls\n", unicode_string, u"aÀἀ𝛃");
    counted_printf("", int,
       "%Id, %Iu, %I32d, %I64d, %I32u, %I64u, %I32x, %I64x\n",
       (ptrdiff_t)(123), (size_t)(456), (int32_t)(789), (int64_t)(123),

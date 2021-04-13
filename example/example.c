@@ -11,5 +11,5 @@ void test() {
    printf("%ld %lld\n", 12L, -45LL); // length modifiers
    printf("%Id %Iu %I32o %I64x\n", (ptrdiff_t)(12), (size_t)(34), (int32_t)(567), (uint64_t)(890)); // Win32/Win64 length modifiers
    char16_t unicode_string[] = {0x61, 0xc0, 0x1f00, 0xd835, 0xdec3, 0x0};
-   printf("%Ls\n", unicode_string);
+   printf("%Ls %Ls\n", unicode_string, u"aÀἀ𝛃");
 }
