@@ -84,6 +84,19 @@ let printf_env = {
    printf_flush: function() {
       printf_env.flush();
    },
+   putchar: function(value) {
+      let string = String.fromCharCode(value);
+      return handle_newline_and_update(string);
+   },
+   puts: function(pointer) {
+      update_buffer_view();
+      let si = pointer, max_si = uint8_view.byteLength;
+      while(uint8_view[si] != 0 && si < max_si) ++si;
+      printf_buffer += utf8_decoder.decode(uint8_view.subarray(pointer, si));
+      console.log(printf_buffer);
+      printf_buffer = '';
+      return 0;
+   },
    printf_string: function(begin, end) {
       update_buffer_view();
       let string = utf8_decoder.decode(uint8_view.subarray(begin, end));

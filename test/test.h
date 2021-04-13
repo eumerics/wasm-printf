@@ -12,6 +12,7 @@
 WASM_EXPORT void test() {
    long long int _count = 0;
    void *count = &_count;
+   printf("c"); printf(" string\n");
    // signed integers
    counted_printf("", int,
       "%d, %2d, %04d, %d, %02d, %+4d, %+04d, %-4d, % d, % d, %5.3d, %05.3d, %05.d, "
